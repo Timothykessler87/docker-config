@@ -1,0 +1,31 @@
+services:
+  # AdGuard Home - Network-wide ad blocking and DNS server
+  adguardhome:
+    container_name: adguardhome
+    image: adguard/adguardhome:v0.107.69 #updated on 20251113
+    user: "1000:1000"
+    environment:
+      - TZ=America/New_York
+    ports:
+      - 53:53/tcp       # DNS
+      - 53:53/udp       # DNS
+        #- 3000:3000/tcp   # Initial setup interface (disable after setup)
+      - 8081:80/tcp     # Web interface
+      - 443:443/tcp     # HTTPS/DoH
+      - 853:853/tcp     # DNS-over-TLS
+      - 784:784/udp     # DNS-over-QUIC
+      - 8853:8853/udp   # DNS-over-QUIC
+      - 5443:5443/tcp   # DNSCrypt
+      - 5443:5443/udp   # DNSCrypt
+    volumes:
+      - /opt/docker/adguard/work:/opt/adguardhome/work
+      - /opt/docker/adguard/conf:/opt/adguardhome/conf
+    restart: unless-stopped
+    networks:
+      - adguard_network
+    # Uncomment below if you experience DNS resolution issues
+    # network_mode: host
+
+networks:
+  adguard_network:
+    external: true

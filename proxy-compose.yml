@@ -1,0 +1,29 @@
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: caddy
+    restart: unless-stopped
+    user: "1000:1000"
+    ports:
+      - "80:80"     # HTTP
+    volumes:
+      - /opt/docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /opt/docker/caddy/data:/data
+      - /opt/docker/caddy/config:/config
+    networks:
+      - proxy_network
+      - media_network      # Connect to your media stack
+      - immich_network     # Connect to Immich
+      - adguard_network    # Connect to AdGuard
+
+networks:
+  proxy_network:
+    driver: bridge
+  
+  # These are external networks from your other compose files
+  media_network:
+    external: true
+  immich_network:
+    external: true
+  adguard_network:
+    external: true

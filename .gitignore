@@ -1,25 +1,141 @@
+# ----------------------------
 # Ignore everything by default
+# ----------------------------
 *
 
-# But include these patterns
+# ----------------------------
+# Root-level files to track
+# ----------------------------
 !.gitignore
+!README.md
+!*.yml
+!*.yaml
 !.env.example
 !.env.template
-!*stack.yml
-!*compose.yml
-!README.md
 
-# Include config directories and their contents
+# ----------------------------
+# Include directories (so git can traverse)
+# ----------------------------
 !*/
-!**/config/
-!**/config/**
 
-# Still exclude secrets even in config dirs
+# ----------------------------
+# Track configuration files
+# ----------------------------
+# YAML configs
+!**/config/*.yml
+!**/config/*.yaml
+
+# XML configs (for *arr apps)
+!**/config/config.xml
+!**/config/system.xml
+!**/config/network.xml
+!**/config/dlna.xml
+!**/config/encoding.xml
+!**/config/branding.xml
+
+# JSON configs
+!**/config/*.json
+!**/config.json
+
+# INI configs (SABnzbd)
+!**/config/*.ini
+
+# PHP configs (Nextcloud)
+!**/config/*.php
+
+# Caddyfile (no extension)
+!**/Caddyfile
+!**/Caddyfile.*
+
+# AdGuard conf directory
+!**/conf/
+!**/conf/*.yaml
+!**/conf/*.yml
+
+# ----------------------------
+# Exclude runtime/generated files even if they match above
+# ----------------------------
+# Runtime configs that regenerate
+#**/config/settings.json
+**/config/options.json
+**/config/ui-config.json
+
+# Session and auth data
+**/config/*.session
+**/config/*.pid
+**/config/*.installation
+
+# Logs
+**/config/log/
+**/config/logs/
+**/config/UpdateLogs/
+**/*.log
+**/*.log.*
+
+# Databases and backups
+**/config/**/*.db
+**/config/**/*.db-*
+**/config/**/*.sqlite*
+**/config/database/
+**/config/db/
+**/config/mariadb/
+**/config/mysql/
+**/config/postgres/
+**/config/backups/
+**/config/Backups/
+
+# User-specific data
+**/config/users/
+**/config/root/
+**/config/.jellyfin-*
+**/config/*.mbink
+**/config/*.collection
+
+# Plugin configs (usually auto-generated)
+**/plugins/
+**/config/plugins/
+
+# App-specific exclusions
+**/config/Definitions/
+**/*.sab
+**/Sentry/
+**/asp/key-*.xml
+**/unins*.exe
+**/unins*.dat
+
+# Cache
+**/cache/
+**/temp/
+**/tmp/
+
+# Nested git repos
+**/.git/
+
+# Secrets and certs
 **/*.key
 **/*.pem
+**/*.crt
+**/*.csr
 **/*.p12
 **/*.pfx
 **/secrets/
-**/secrets/**
 .env
 .env.local
+
+# OS/editor metadata
+**/.DS_Store
+**/Thumbs.db
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+
+# Data volumes (from compose)
+**/data/
+**/metadata/
+**/library/
+**/model-cache/
+**/postgres/
+**/bookdrop/
+**/html/
+**/apps/

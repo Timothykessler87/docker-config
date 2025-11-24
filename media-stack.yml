@@ -1,0 +1,339 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.11.2 #updated on 20251113
+    container_name: jellyfin
+    user: "1000:1000"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/jellyfin/config:/config
+      - /opt/docker/jellyfin/cache:/cache
+      - /mnt/media/tv:/data/tv
+      - /mnt/media/movies:/data/movies
+      - /mnt/media/music:/data/music
+    ports:
+      - "8096:8096"
+      - "8920:8920"  # HTTPS
+      - "7359:7359/udp"  # Discovery
+      - "1900:1900/udp"  # DLNA
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:4.0.16 #updated on 20251113
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/sonarr/config:/config
+      - /mnt/media/tv:/tv
+      - /mnt/media/downloads:/downloads
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:5.28.0 #updated on 20251113
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/radarr/config:/config
+      - /mnt/media/movies:/movies
+      - /mnt/media/downloads:/downloads
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:3.0.1 #updated on 20251113
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/lidarr/config:/config
+      - /mnt/media/music:/music
+      - /mnt/media/downloads:/downloads
+    ports:
+      - "8686:8686"
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:4.5.5 #updated on 20251113
+    container_name: sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/sabnzbd/config:/config
+      - /mnt/media/downloads:/downloads
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:2.1.5 #updated on 20251113
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/prowlarr/config:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  profilarr:
+    image: santiagosayshey/profilarr:v1.1.3
+    container_name: profilarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/profilarr/config:/config
+    ports:
+      - "5000:6868"
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  glance:
+    image: glanceapp/glance:v0.8.4
+    container_name: glance
+    env_file:
+      - .env
+    environment:
+      - TZ=America/New_York
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - RADARR_API_URL=http://192.168.68.11:7878
+      - RADARR_KEY=${RADARR_KEY}
+      - RADARR_URL=https://192.168.68.11:7878  # optional
+
+      - SONARR_API_URL=http://192.168.68.11:8989
+      - SONARR_KEY=${SONARR_KEY}
+      - SONARR_URL=https://192.168.68.11:8989
+    volumes:
+      - /opt/docker/glance/config:/app/config
+    ports:
+      - "8090:8080"
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  jellyseerr:
+    image: ghcr.io/fallenbagel/jellyseerr:2.7.3
+    init: true
+    container_name: jellyseerr
+    user: "1000:1000"
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=America/New_York
+    ports:
+      - 5055:5055
+    volumes:
+      - /opt/docker/seerr/config:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  lidatube:
+    image: thewicklowwolf/lidatube:latest
+    container_name: lidatube
+    env_file:
+      - .env
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - lidarr_address=http://lidarr:8686
+      - lidarr_api_key=${LIDARR_KEY}
+      - lidarr_api_timeout=120
+      - thread_limit=1
+      - sleep_interval=0
+      - fallback_to_top_result=False
+      - library_scan_on_completion=True
+      - sync_schedule=2,14  # 2 AM and 2 PM - adjust as needed
+      - minimum_match_ratio=90
+      - secondary_search=YTS
+      - preferred_codec=mp3
+      - attempt_lidarr_import=True
+    volumes:
+      - /opt/docker/lidatube/config:/lidatube/config
+      - /mnt/media/music:/lidatube/downloads
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "5001:5000"  # Changed from 5000 to avoid conflict with Profilarr
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  audiobookshelf:
+    container_name: audiobookshelf-server
+    user: "1000:1000"
+    environment:
+      - TZ=America/New_York
+    image: ghcr.io/advplyr/audiobookshelf:2.30.0
+    ports:
+      - 13378:80
+    volumes:
+      - /mnt/media/audiobooks:/audiobooks
+      - /mnt/media/podcasts:/podcasts
+      - /opt/docker/audiobookshelf/config:/config
+      - /opt/docker/audiobookshelf/metadata:/metadata
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  booklore:
+    image: booklore/booklore:v1.10.0
+    container_name: booklore
+    environment:
+      - USER_ID=${APP_USER_ID}
+      - GROUP_ID=${APP_GROUP_ID}
+      - TZ=America/New_York
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_USERNAME=${BL_DB_USER}
+      - DATABASE_PASSWORD=${BL_DB_PASSWORD}
+      - BOOKLORE_PORT=${BOOKLORE_PORT}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "${BOOKLORE_PORT}:${BOOKLORE_PORT}"
+    volumes:
+      - /opt/docker/booklore/data:/app/data
+      - /mnt/media/books:/books
+      - /opt/docker/booklore/bookdrop:/bookdrop
+    restart: unless-stopped
+    networks:
+      - media_network
+
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:11.4.5
+    container_name: mariadb
+    environment:
+      - PUID=${DB_USER_ID}
+      - PGID=${DB_GROUP_ID}
+      - TZ=America/New_York
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${BL_DB_USER}
+      - MYSQL_PASSWORD=${BL_DB_PASSWORD}
+    volumes:
+      - /opt/docker/booklore/config/mariadb:/config
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - media_network
+
+  # Immich - Photo and video backup solution
+  immich-server:
+    container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:v2.2.1 #updated on 20251112
+    user: "1000:1000"
+    volumes:
+      - /mnt/media/photos:/usr/src/app/upload
+      - /opt/docker/immich/library:/usr/src/app/library
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    environment:
+      - IMMICH_HOST=0.0.0.0
+      - IMMICH_PORT=3001
+    ports:
+      - 2283:3001
+    depends_on:
+      - immich-redis
+      - immich-database
+    restart: unless-stopped
+    networks:
+      - immich_network
+
+  immich-machine-learning:
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:v2.2.1 #updated on 20251112
+    user: "1000:1000"
+    volumes:
+      - /opt/docker/immich/model-cache:/cache
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - immich_network
+
+  immich-redis:
+    container_name: immich_redis
+    image: redis:6.2.14-alpine
+    restart: unless-stopped
+    networks:
+      - immich_network
+
+  immich-database:
+    container_name: immich_postgres
+    image: tensorchord/pgvecto-rs:pg14-v0.2.0
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_DB=${DB_DATABASE_NAME}
+    volumes:
+      - /opt/docker/immich/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - immich_network
+
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: lazylibrarian
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /opt/docker/lazylibrarian/data:/config
+      - /mnt/media/downloads:/downloads
+      - /mnt/media/lazylibrarian/downloads:/library #optional
+    ports:
+      - 5299:5299
+    restart: unless-stopped
+    networks:
+      - media_network
+
+networks:
+  media_network:
+    external: true
+  immich_network:
+    external: true
