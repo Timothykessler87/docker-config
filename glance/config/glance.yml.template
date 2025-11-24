@@ -499,31 +499,6 @@ jellyseerr-template: &jellyseerr-template |
 pages:
   - name: Home
     columns:
-      - size: small
-        widgets:
-          - type: weather
-            units: imperial
-            location: Chattanooga, Tennessee, United States
-          - type: clock
-            hour-format: 12h
-            timezones:
-              - timezone: America/New_York
-                label: Local
-          
-          # Jellyseerr Pending Requests
-          - type: custom-api
-            title: Jellyseerr Pending
-            title-url: http://192.168.68.11:5055
-            cache: 5m
-            options:
-              size: small
-              collapse-after: 5
-              status: pending
-              api-base-url: http://192.168.68.11:5055
-              key: MTc2MzI0NjM2OTQ5MWVhNGUwNTc3LTEwZjUtNDkxOS05ZjI3LWJkNjBkYTlkNTlmNQ==
-              url: http://192.168.68.11:5055
-            template: *jellyseerr-template
-
       - size: full
         widgets:
           - type: monitor
@@ -590,6 +565,19 @@ pages:
 
       - size: small
         widgets:
+          # Jellyseerr Pending Requests
+          - type: custom-api
+            title: Jellyseerr Pending
+            title-url: http://192.168.68.11:5055
+            cache: 5m
+            options:
+              size: small
+              collapse-after: 5
+              status: pending
+              api-base-url: http://192.168.68.11:5055
+              key: MTc2MzI0NjM2OTQ5MWVhNGUwNTc3LTEwZjUtNDkxOS05ZjI3LWJkNjBkYTlkNTlmNQ==
+              url: http://192.168.68.11:5055
+            template: *jellyseerr-template
           - type: dns-stats
             title: AdGuard-ness
             service: adguard
