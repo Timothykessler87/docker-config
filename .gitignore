@@ -1,3 +1,25 @@
+# Ignore everything by default
+*
+
+# But include these patterns
+!.gitignore
+!.env.example
+!.env.template
+!*stack.yml
+!*compose.yml
+!README.md
+
+# Include config directories and their contents
+!*/
+!**/config/
+!**/config/**
+
+# Still exclude secrets even in config dirs
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+**/secrets/
+**/secrets/**
 .env
 .env.local
-
