@@ -1,0 +1,17 @@
+{
+    "lidarr_address": "http://lidarr:8686",
+    "lidarr_api_key": "[lidarr_api_key]",
+    "lidarr_api_timeout": 120.0,
+    "thread_limit": 1,
+    "sleep_interval": 0.0,
+    "fallback_to_top_result": false,
+    "library_scan_on_completion": true,
+    "sync_schedule": [
+        2,
+        14
+    ],
+    "minimum_match_ratio": 90.0,
+    "secondary_search": "YTS",
+    "preferred_codec": "mp3",
+    "attempt_lidarr_import": true
+}

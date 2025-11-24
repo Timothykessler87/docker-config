@@ -1,0 +1,85 @@
+{
+    # Disable automatic HTTPS for local network
+    auto_https off
+}
+
+# Jellyfin - Media Server
+http://jellyfin.tandm.server {
+    reverse_proxy jellyfin:8096
+}
+
+# Sonarr - TV Shows
+http://sonarr.tandm.server {
+    reverse_proxy sonarr:8989
+}
+
+# Radarr - Movies
+http://radarr.tandm.server {
+    reverse_proxy radarr:7878
+}
+
+# Lidarr - Music
+http://lidarr.tandm.server {
+    reverse_proxy lidarr:8686
+}
+
+# SABnzbd - Usenet Downloader
+http://sabnzbd.tandm.server {
+    reverse_proxy sabnzbd:8080
+}
+
+# Prowlarr - Indexer Manager
+http://prowlarr.tandm.server {
+    reverse_proxy prowlarr:9696
+}
+
+# Profilarr
+http://profilarr.tandm.server {
+    reverse_proxy profilarr:6868
+}
+
+# Glance - Dashboard
+http://glance.tandm.server {
+    reverse_proxy glance:8080
+}
+
+# Jellyseerr - Media Requests
+http://jellyseerr.tandm.server {
+    reverse_proxy jellyseerr:5055
+}
+
+# Lidatube
+http://lidatube.tandm.server {
+    reverse_proxy lidatube:5000
+}
+
+# Audiobookshelf
+http://audiobooks.tandm.server {
+    reverse_proxy audiobookshelf-server:80
+}
+
+# Booklore
+http://booklore.tandm.server {
+    #reverse_proxy booklore:8091
+    reverse_proxy booklore:6060
+}
+
+# Immich - Photos
+http://photos.tandm.server {
+    reverse_proxy immich-server:3001
+}
+
+# AdGuard Home
+http://adguard.tandm.server {
+    reverse_proxy adguardhome:80
+}
+
+# LazyLibrarian
+http://lazylibrarian.tandm.server {
+    reverse_proxy lazylibrarian:5299
+}
+
+# Main dashboard at root
+http://tandm.server {
+    reverse_proxy glance:8080
+}
